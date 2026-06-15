@@ -12,7 +12,7 @@ Images are maintained on [quay.io/jhansen/git-sync](https://quay.io/jhansen/git-
 
 ```
 
-    # build the container
+    # build the container for your local machine
     make docker-build
 
     # run the git-sync container
@@ -20,6 +20,36 @@ Images are maintained on [quay.io/jhansen/git-sync](https://quay.io/jhansen/git-
             -e GIT_SYNC_DEST=/git -e GIT_SYNC_BRANCH=master \
             -e GIT_SYNC_WAIT=600 \
             -v /git-data:/git git-sync
+```
+
+## Building
+
+The Go binary is cross-compiled inside a multi-stage Docker build, so the
+correct binary is produced for each target architecture.
+
+| Command | Description |
+| --- | --- |
+| `make docker-build` | Build a single-arch image for your machine and load it into Docker |
+| `make docker-buildx` | Build a multi-arch image (`linux/amd64` + `linux/arm64`) without publishing |
+| `make push-multiarch` | Build **and push** a multi-arch image manifest |
+
+### Publishing a multi-arch image
+
+`push-multiarch` builds for both `linux/amd64` and `linux/arm64` and pushes a
+single manifest. A multi-arch image cannot be loaded locally, so it is pushed
+straight to the registry — run `docker login` first.
+
+```
+
+    docker login <registry>
+    make push-multiarch REGISTRY=quay.io/youruser VERSION=1.0
+```
+
+The target platforms are configurable:
+
+```
+
+    make push-multiarch PLATFORMS=linux/amd64,linux/arm64,linux/arm/v7
 ```
 
 ## Configuration

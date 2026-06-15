@@ -1,0 +1,73 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: git-sync-pvc
+spec:
+  storageClassName: standard
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-git-sync
+  labels:
+    app: nginx-git-sync
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: nginx-git-sync
+  template:
+    metadata:
+      labels:
+        app: nginx-git-sync
+    spec:
+      containers:
+        # Main container: nginx web server serving the synced content
+        - name: nginx
+          image: nginx:stable
+          ports:
+            - containerPort: 80
+          volumeMounts:
+            - name: git-sync-volume
+              mountPath: /usr/share/nginx/html
+        # Sidecar container: keeps the git repo in sync into the shared volume
+        - name: git-sync
+          image: miciav/git-sync:1.0
+          env:
+            - name: GIT_SYNC_REPO
+              value: "https://github.com/mdn/beginner-html-site-styled"
+            - name: GIT_SYNC_DEST
+              value: "/data"
+            - name: GIT_SYNC_WAIT
+              value: "30"
+            - name: GIT_SYNC_BRANCH
+              value: "main"
+            - name: GIT_SYNC_REV
+              value: "HEAD"
+          volumeMounts:
+            - name: git-sync-volume
+              mountPath: /data
+      volumes:
+        - name: git-sync-volume
+          persistentVolumeClaim:
+            claimName: git-sync-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-git-sync
+  labels:
+    app: nginx-git-sync
+spec:
+  type: ClusterIP
+  selector:
+    app: nginx-git-sync
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
