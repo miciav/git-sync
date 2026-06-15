@@ -7,8 +7,8 @@
 #   DOCKER_USER=<user> ./scripts/build-and-push.sh [VERSION]
 #
 # Examples:
-#   DOCKER_USER=miciav ./scripts/build-and-push.sh        # tags :latest
-#   DOCKER_USER=miciav ./scripts/build-and-push.sh 1.0    # tags :1.0 and :latest
+#   DOCKER_USER=youruser ./scripts/build-and-push.sh        # tags :latest
+#   DOCKER_USER=youruser ./scripts/build-and-push.sh 1.0    # tags :1.0 and :latest
 #
 # Environment overrides:
 #   DOCKER_USER   Docker Hub username        (required)

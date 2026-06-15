@@ -51,7 +51,7 @@ push-multiarch:
 	docker buildx build --platform ${PLATFORMS} -t ${IMAGE} -f rootfs/Dockerfile --push .
 
 # Build and push a multi-arch image to Docker Hub via the helper script.
-# Requires DOCKER_USER, e.g.: make push-hub DOCKER_USER=miciav VERSION=1.0
+# Requires DOCKER_USER, e.g.: make push-hub DOCKER_USER=youruser VERSION=1.0
 push-hub:
 	DOCKER_USER="${DOCKER_USER}" SHORT_NAME="${SHORT_NAME}" PLATFORMS="${PLATFORMS}" \
 		scripts/build-and-push.sh ${VERSION}
